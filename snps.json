@@ -1,0 +1,6 @@
+{
+  "snps": [
+    {"search": "<customer>"
+    , "replace": "Buy N Large"}
+  ]
+}
