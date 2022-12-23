@@ -38,25 +38,32 @@ struct Args {
 pub fn main() -> Result<(), DocxError> {
     let args = Args::parse();
     let inpath = std::path::Path::new(&args.inf);
-    // let infile = std::fs::File::create(&inpath).unwrap();
 
     let mut file = File::open(inpath).unwrap();
     let mut buf = vec![];
     file.read_to_end(&mut buf).unwrap();
 
     let mut dx = read_docx(&buf).unwrap();
-    // let mut file = File::create("./hello.json")?;
 
     let repf = File::open(&args.replacements).unwrap();
-    let replacements = serde_json::from_reader(repf).unwrap();
+    let replacements: SearchesAndReplacements = serde_json::from_reader(repf).unwrap();
 
-    search_and_replace(&mut dx, &replacements);
+    // For now don't search and replace, just write the template out again.
+    // search_and_replace(&mut dx, &replacements);
 
-    let outfile = std::fs::File::create(args.outf).unwrap();
-    dx.build().pack(outfile);
+    let mut outfile = std::fs::File::create(args.outf).unwrap();
+    println!("write: {:?}", dx.build().pack(&outfile));
+    outfile.flush().unwrap();
+
+    // let mut jfile = File::create("./hello.json").unwrap();
+    // jfile.write_all(dx.json().as_bytes()).unwrap();
+    // jfile.flush().unwrap();
 
     Ok(())
 }
+
+/*
+
 
 pub fn search_and_replace(mut dx: &mut Docx, snr: &SearchesAndReplacements) {
     for mut dc in &mut dx.document.children {
@@ -148,6 +155,7 @@ pub fn snr_rc(mut pc: &RunChild, snr: &SearchesAndReplacements) {
     match pc {
         RunChild::Text(text) => (),
         RunChild::DeleteText(deleteText) => (),
+        RunChild::DeleteInstrText(deleteInstrText) => (),
         RunChild::Tab(tab) => (),
         RunChild::Break(break_) => (),
         RunChild::Drawing(drawing) => (),
@@ -171,3 +179,5 @@ pub fn snr_rc(mut pc: &RunChild, snr: &SearchesAndReplacements) {
 //     file.write_all(res.as_bytes()).unwrap();
 //     file.flush().unwrap();
 // }
+
+*/
