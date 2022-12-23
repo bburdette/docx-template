@@ -146,6 +146,8 @@ version = "0.1.0"
 dependencies = [
  "clap",
  "docx-rs",
+ "serde",
+ "serde_derive",
  "serde_json",
 ]
 

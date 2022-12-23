@@ -3,14 +3,18 @@ use std::fs;
 
 use docx_rs::*;
 
+use serde_derive::{Deserialize, Serialize};
+use serde_json;
 use std::fs::File;
 use std::io::{Read, Write};
 
+#[derive(Serialize, Deserialize)]
 pub struct SearchAndReplace {
     pub search: String,
     pub replace: String,
 }
 
+#[derive(Serialize, Deserialize)]
 pub struct SearchesAndReplacements {
     pub snps: Vec<SearchAndReplace>,
 }
@@ -34,14 +38,22 @@ struct Args {
 pub fn main() -> Result<(), DocxError> {
     let args = Args::parse();
     let inpath = std::path::Path::new(&args.inf);
-    let infile = std::fs::File::create(&inpath).unwrap();
+    // let infile = std::fs::File::create(&inpath).unwrap();
 
-    let mut file = File::open("./invoice.docx").unwrap();
+    let mut file = File::open(inpath).unwrap();
     let mut buf = vec![];
     file.read_to_end(&mut buf).unwrap();
 
-    // let mut file = File::create("./hello.json")?;
     let mut dx = read_docx(&buf).unwrap();
+    // let mut file = File::create("./hello.json")?;
+
+    let repf = File::open(&args.replacements).unwrap();
+    let replacements = serde_json::from_reader(repf).unwrap();
+
+    search_and_replace(&mut dx, &replacements);
+
+    let outfile = std::fs::File::create(args.outf).unwrap();
+    dx.build().pack(outfile);
 
     Ok(())
 }
